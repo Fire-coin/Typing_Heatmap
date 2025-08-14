@@ -7,7 +7,6 @@
     height: 300px;
 }
 
-
 .key {
     border-radius: 20px;
     background-color: grey;
@@ -19,9 +18,6 @@
     height: 30px;
     position: absolute;
 }
-
-
-
 
 #Text1 {
     width: 900px;
