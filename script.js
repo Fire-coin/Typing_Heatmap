@@ -64,3 +64,12 @@ document.addEventListener("keydown", (event) => {
 
     animateColor([0, 255, 0], [180, 100, 0], box);
 });
+
+
+function clearTextEntry() {
+    document.getElementById("Text1").value = "";
+}
+
+
+
+document.getElementById("ClearButton").onclick = clearTextEntry;
