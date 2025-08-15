@@ -9,6 +9,13 @@ let offsets = [0, width + padding / 2, 2 * width + padding + 20];
 
 let letter = 0;
 let layout = "QWERTYUIOPASDFGHJKLZXCVBNM";
+/**
+ * @type {number[]}
+ */
+var keypresses = [];
+for (let i = 0; i < layout.length; ++i) {
+    keypresses.push(0);
+}
 
 for (let row = 0; row < 3; row++) {
     for (let col = 0; col < cols[row]; col++) {
@@ -25,12 +32,15 @@ for (let row = 0; row < 3; row++) {
     }
 }
 
-function animateColor(startRGB, endRGB, element, duration = 2000) {
+var duration = 2000;
+
+function animateColor(startRGB, endRGB, element) {
     let startTime = null;
     let flag = false;
 
     function step(timestamp) {
         if (!startTime) startTime = timestamp;
+        if (duration == 1) return;
         const progress = Math.min((timestamp - startTime) / duration, 1);
 
         // Interpolate each RGB channel
@@ -47,6 +57,7 @@ function animateColor(startRGB, endRGB, element, duration = 2000) {
             startTime = null;
             startRGB = endRGB;
             endRGB = [128, 128, 128];
+            if (duration == 1) return;
             requestAnimationFrame(step);
         }
     }
@@ -60,6 +71,7 @@ document.addEventListener("keydown", (event) => {
     if (pressedKey.length != 1) return;
 
     let index = layout.indexOf(pressedKey);
+    keypresses[index]++;
     const box = document.getElementById(String(index));
 
     animateColor([0, 255, 0], [180, 100, 0], box);
@@ -68,8 +80,56 @@ document.addEventListener("keydown", (event) => {
 
 function clearTextEntry() {
     document.getElementById("Text1").value = "";
+
+    for (let i = 0; i < keypresses.length; ++i) {
+        const key = document.getElementById(String(i));
+        key.style.backgroundColor = `rgb(128, 128, 128)`;
+    }
+    heatmapShown = false;
+    duration = 2000;
+}
+
+var heatmapShown = false;
+
+function toggleFullHeatmap() {
+    maximal = Math.max(...keypresses);
+    if (!heatmapShown)
+        duration = 1;
+    else
+        duration = 2000;
+    
+    if (maximal == 0) maximal = 1;
+    startColor = [255, 0, 0];
+    endColor = [0, 255, 0];
+
+    for (let i = 0; i < keypresses.length; ++i) {
+        const key = document.getElementById(String(i));
+
+        let usability = keypresses[i] / maximal;
+        if (!heatmapShown) {
+            const r = Math.round(startColor[0] + (endColor[0] - startColor[0]) * usability);
+            const g = Math.round(startColor[1] + (endColor[1] - startColor[1]) * usability);
+            const b = Math.round(startColor[2] + (endColor[2] - startColor[2]) * usability);
+            key.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+        } else {
+            key.style.backgroundColor = `rgb(128, 128, 128)`;
+        }
+
+    }
+    heatmapShown = !heatmapShown;
 }
 
 
+function clearKeyPresses() {
+    for (let i = 0; i < keypresses.length; ++i) {
+        const key = document.getElementById(String(i));
+        key.style.backgroundColor = `rgb(128, 128, 128)`;
+        keypresses[i] = 0;
+    }
+    heatmapShown = false;
+}
+
 
 document.getElementById("ClearButton").onclick = clearTextEntry;
+document.getElementById("ToggleHeatmap").onclick = toggleFullHeatmap;
+document.getElementById("ClearKeysButton").onclick = clearKeyPresses;
