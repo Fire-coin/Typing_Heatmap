@@ -1,0 +1,1 @@
+This project shows which letter keys have been pressed, and slowly fade away. There is also option to see the heat map of all key presses, along side with options to clear entry window and reset the counter for key presses.
